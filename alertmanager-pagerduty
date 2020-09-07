@@ -1,0 +1,42 @@
+global:
+  resolve_timeout: 5m
+  http_config: {}
+  pagerduty_url: https://events.pagerduty.com/v2/enqueue
+route:
+  receiver: slack_pagerduty
+  group_by:
+    - alertname
+    - instance
+    - severity
+  routes:
+    - receiver: slack_pagerduty
+      match:
+        page: "true"
+  group_wait: 5s
+  group_interval: 5m
+  repeat_interval: 12h
+receivers:
+  - name: slack_pagerduty
+    pagerduty_configs:
+      - send_resolved: true
+        http_config: {}
+        routing_key: <secret>
+        url: https://events.pagerduty.com/v2/enqueue
+        client: '{{ template "pagerduty.default.client" . }}'
+        client_url: '{{ template "pagerduty.default.clientURL" . }}'
+        details:
+          firing: '{{ template "pagerduty.default.instances" .Alerts.Firing }}'
+          num_firing: '{{ .Alerts.Firing | len }}'
+          num_resolved: '{{ .Alerts.Resolved | len }}'
+          resolved: '{{ template "pagerduty.default.instances" .Alerts.Resolved }}'
+        links:
+          - href: '{{ range .Alerts }}{{ .GeneratorURL }}{{ end }}'
+            text: See on Prometheus
+    slack_configs:
+      - api_url: <slack-api>
+        channel: '#alerting-prod'
+        icon_url: <Icon-url from git>
+        send_resolved: true
+        title: '{{ template "custom_title" . }}'
+        text: '{{ template "custom_slack_message" . }}'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
