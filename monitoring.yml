@@ -1,0 +1,35 @@
+---
+- name: Setup Prometheus, Alertmanager, and Grafana
+  hosts: your_server_ip  # Replace with the IP address or hostname of your Ubuntu server
+  become: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install necessary packages
+      apt:
+        name:
+          - prometheus
+          - prometheus-alertmanager
+          - grafana
+        state: present
+
+    - name: Start and enable Prometheus
+      systemd:
+        name: prometheus
+        enabled: yes
+        state: started
+
+    - name: Start and enable Alertmanager
+      systemd:
+        name: prometheus-alertmanager
+        enabled: yes
+        state: started
+
+    - name: Start and enable Grafana
+      systemd:
+        name: grafana-server
+        enabled: yes
+        state: started
